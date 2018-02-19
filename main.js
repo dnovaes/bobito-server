@@ -36,8 +36,17 @@ router.get('/', function (req, res){
 });
 
 router.get('/scoreBoard/get/', function (req, res){
-  let scoreObj = JSON.parse(fs.readFileSync('scoreboard.json', 'utf8'));
-  res.send(scoreObj);
+  let filename = path.join(__dirname, "scoreboard.json");
+  var fread;
+
+  if(fread = fs.readFileSync(filename, 'utf8')){
+    let scoreObj = JSON.parse(fread);
+    res.send(scoreObj);
+  }else{
+    console.log(`Arquivo '${filename}' não encontrado ou não pôde ser aberto.`);
+    //res.status(404).render('404', { url: req.originalUrl });
+    res.send({"fail":1});
+  }
 });
 
 router.post('/scoreBoard/update/', function(req, res){
