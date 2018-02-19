@@ -1,0 +1,2 @@
+# bobitoserver
+bot server
