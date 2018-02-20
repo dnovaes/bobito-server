@@ -50,14 +50,42 @@ router.get('/scoreBoard/get/', function (req, res){
   });
 });
 
+router.get('/scoreBoard/get1/', function (req, res){
+  let filename = path.join(__dirname, "scoreboard.json");
+
+  fs.readFile(filename, 'utf8', (err, data)=>{
+    if(err){
+      console.log(`Arquivo '${filename}' not found or couldn't be created.`);
+      console.log(`Arquivo '${filename}' will be created.`);
+      //res.status(404).render('404', { url: req.originalUrl });
+
+      fs.writeFile('scoreboard.json', json, 'utf8',function (err) {
+        if (err){
+          console.log(err);
+          res.send({"fail":1});
+        }
+        console.log("scoreBoard updated.");
+        res.send({"ok":1});
+      });
+    }else{
+      //render json info with data loaded
+      let scoreObj = JSON.parse(data);
+      res.send(scoreObj);
+    }
+  });
+});
+
 router.post('/scoreBoard/update/', function(req, res){
     if(req.body.constructor === Object && Object.keys(req.body).length == 21){
+      console.log(req.body);
       let json = JSON.stringify(req.body);
       //async
       fs.writeFile('scoreboard.json', json, 'utf8',function (err) {
-        if (err) return console.log(err);
-        console.log("scoreBoard file updated.");
-        //console.log(json);
+        if (err){
+          console.log(err);
+          res.send({"fail":1});
+        }
+        console.log("scoreBoard updated.");
         res.send({"ok":1});
       });
     }else{
