@@ -38,7 +38,7 @@ router.get('/', function (req, res){
 router.get('/scoreBoard/get/', function (req, res){
   let filename = path.join(__dirname, "scoreboard.json");
 
-  fs.readFile(filename, 'utf8', (err, data)=>{
+  var fread = fs.readFile(filename, 'utf8', (err, data)=>{
     if(err){
       console.log(`Arquivo '${filename}' não encontrado ou não pôde ser aberto.`);
       //res.status(404).render('404', { url: req.originalUrl });
