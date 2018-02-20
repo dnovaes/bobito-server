@@ -38,13 +38,13 @@ router.get('/', function (req, res){
 router.get('/scoreBoard/get/', function (req, res){
   let filename = path.join(__dirname, "scoreboard.json");
 
-  var fread = fs.readFile(filename, 'utf8', (err, data)=>{
+  fs.readFile(filename, 'utf8', (err, data)=>{
     if(err){
       console.log(`Arquivo '${filename}' não encontrado ou não pôde ser aberto.`);
       //res.status(404).render('404', { url: req.originalUrl });
       res.send({"fail":1});
     }else{
-      let scoreObj = JSON.parse(fread);
+      let scoreObj = JSON.parse(data);
       res.send(scoreObj);
     }
   });
