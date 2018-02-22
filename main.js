@@ -38,26 +38,50 @@ router.get('/', function (req, res){
 
 router.get('/scoreBoard/get/', function (req, res){
   let filename = path.join(__dirname, "scoreboard.json");
-  var fread;
 
-  if(fread = fs.readFileSync(filename, 'utf8')){
-    let scoreObj = JSON.parse(fread);
-    res.send(scoreObj);
-  }else{
-    console.log(`Arquivo '${filename}' não encontrado ou não pôde ser aberto.`);
-    //res.status(404).render('404', { url: req.originalUrl });
-    res.send({"fail":1});
-  }
+  fs.readFile(filename, 'utf8', (err, data) => {
+    if(err){
+      console.log(`Arquivo '${filename}' not found or couldn't be created.`);
+      console.log(`Arquivo '${filename}' will be created.`);
+      data = {
+        b: '0', s: '0', o: '0', 
+        g1: '0', g2: '0', g3: '0', g4: '0', g5: '0', g6: '0', g7: '0', g8: '0', g9: '0',
+        h1: '1', h2: '0', h3: '0', h4: '0', h5: '0', h6: '0', h7: '0', h8: '0', h9: '0'
+      }
+
+      data = JSON.stringify(data);
+
+      console.log(data);
+
+      fs.writeFile('scoreboard.json', data, 'utf8',function (err) {
+        if (err){
+          console.log(err);
+          res.send({"fail":1});
+        }
+        console.log("scoreBoard updated with new file");
+        let scoreObj = JSON.parse(data);
+        res.send(scoreObj);
+
+      });
+    }else{
+      //render json info with data loaded
+      let scoreObj = JSON.parse(data);
+      res.send(scoreObj);
+    }
+  });
 });
 
 router.post('/scoreBoard/update/', function(req, res){
     if(req.body.constructor === Object && Object.keys(req.body).length == 21){
+      console.log(req.body);
       let json = JSON.stringify(req.body);
       //async
       fs.writeFile('scoreboard.json', json, 'utf8',function (err) {
-        if (err) return console.log(err);
-        console.log("scoreBoard file updated.");
-        //console.log(json);
+        if (err){
+          console.log(err);
+          res.send({"fail":1});
+        }
+        console.log("scoreBoard updated.");
         res.send({"ok":1});
       });
     }else{
