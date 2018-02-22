@@ -1,11 +1,12 @@
 // BASE SETUP
 
-var express    = require('express')
-var app        = express()
-var path       = require('path');
-var bodyparser = require('body-parser');
-var port       = process.env.PORT || 3000;
-var fs = require('fs');
+var express     = require('express')
+var app         = express()
+var path        = require('path');
+var bodyparser  = require('body-parser');
+const port        = process.env.PORT || 3000;
+const fs          = require('fs');
+const user      = require('./routes/user');
 
 // There is a special routing method which is not derived from any HTTP method. 
 // This method is used for loading middleware functions at a path for all request methods.
@@ -66,54 +67,7 @@ router.post('/scoreBoard/update/', function(req, res){
 
 //route that handle ajax requests
 //in case of post request, all "variable" are passed in req.body
-router.post('/gloin/', function(req, res){
-
-    const mysql = require('mysql');
-
-    if(req.body.constructor === Object && Object.keys(req.body).length == 2 &&
-        req.body.username != "" && req.body.password != ""){
-
-      var username = req.body.username;
-      var password = req.body.password;
-
-      let con = mysql.createConnection({
-        host: "mysql552.umbler.com",
-        user: "bobitobot_adminu",
-        password: "#7wyf/Q3VGJPc9",
-        database: "bobitobot_db"
-      });
-
-      con.connect((err) =>{
-        if (err) throw err;
-        //console.log("Connected!");
-
-        let sql = "SELECT username, password FROM login WHERE username = ?";
-
-        con.query(sql, [username], (err, result, fields) => {
-          if (err) throw err;
-          let obj;
-
-          if(result.length == 0 || result[0].password != password){
-            //user not found or incorrect pass
-            console.log("Username or Password incorrect");
-            obj = { "fLogin": 0}
-          }else{
-            console.log(`User "${username}" logado com sucesso!`);
-            obj = { "fLogin": 1}
-          }
-          let json = JSON.stringify(obj);
-          res.send(json);
-          con.end();
-        });
-      });
-    }else{
-      console.log(Object.keys(req.body).length, req.body);
-      let obj = { "fLogin": 0}
-      let json = JSON.stringify(obj);
-      res.send(json);
-    }
-
-});
+router.post('/gloin', user.signin);
 
 // route with parameters ex: localhost:8081/elastic/:id
 router.get('/elastic/:id', function(req, res){
