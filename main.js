@@ -4,9 +4,9 @@ var express     = require('express')
 var app         = express()
 var path        = require('path');
 var bodyparser  = require('body-parser');
-const port        = process.env.PORT || 3000;
-const fs          = require('fs');
-const user      = require('./routes/user');
+const port      = process.env.PORT || 3000;
+const fs        = require('fs');
+const user      = require('./controller/user');
 
 // There is a special routing method which is not derived from any HTTP method. 
 // This method is used for loading middleware functions at a path for all request methods.
