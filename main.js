@@ -1,12 +1,14 @@
 // BASE SETUP
+import express      from 'express'
+import db_Marketing from './config/db_pbMarketing';
+import path         from 'path';
+import bodyparser   from 'body-parser';
+import fs           from 'fs';
+import user         from './controller/user';
 
-var express     = require('express')
-var app         = express()
-var path        = require('path');
-var bodyparser  = require('body-parser');
-const port      = process.env.PORT || 3000;
-const fs        = require('fs');
-const user      = require('./controller/user');
+//Set up the express app
+const app         = express()
+const PORT = process.env.PORT || 3000;
 
 // There is a special routing method which is not derived from any HTTP method. 
 // This method is used for loading middleware functions at a path for all request methods.
@@ -23,7 +25,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //parse request bodies (req.body / POST )
-//app.use(bodyparser());
+//extended : parse nested objects. ex: {person: {name:cw}}
 app.use(bodyparser.urlencoded({ extended: true}));
 app.use(bodyparser.json());
 
@@ -36,6 +38,92 @@ router.get('/', function (req, res){
   res.render('index');
 });
 
+//Pb MarketingRequests
+//get All data
+router.get('/graphicpieces/', (req, res) => {
+  res.status(200).send({
+    success: 'true',
+    message: 'graphicpieces retrieved successfully',
+    content: db_Marketing
+  });
+});
+// create a graphicpiece
+router.post('/graphicpieces/', (req, res) =>{
+  if(!req.body.title){
+    return res.status(404).send({
+      success: 'false',
+      message: 'title is required'
+    });
+  }else if(!req.body.type){
+    return res.status(404).send({
+      success: 'false',
+      message: 'type is required'
+    });
+  }
+
+  const content = {
+    id: db_Marketing.length+1,
+    title: req.body.title,
+    type: req.body.type
+  }
+  db_Marketing.push(content);
+  res.status(200).send({
+    success: 'true',
+    message: 'graphicpiece added successfully',
+    content
+  })
+
+});
+//get a single graphicpiece by type
+//printed
+router.get('/graphicpieces/digital/', (req, res) => {
+
+  let contentMap = []
+  db_Marketing.map((content) => {
+    if(parseInt(content.type) === 1){
+      contentMap.push(content)
+    }
+  });
+
+  if(contentMap.length){
+    return res.status(200).send({
+      success: 'true',
+      message: 'digital graphicpiece retrieved successfully',
+      contentMap
+    });
+  }
+
+  res.status(404).send({
+    success: 'false',
+    message: 'digital graphicPiece requested does not exist',
+  });
+});
+
+router.get('/graphicpieces/printed/', (req, res) => {
+  
+  let contentMap = []
+  db_Marketing.map((content) => {
+    if(parseInt(content.type) === 2){
+      contentMap.push(content)
+    }
+  });
+
+  if(contentMap.length){
+    return res.status(200).send({
+      success: 'true',
+      message: 'printed graphicpiece retrieved successfully',
+      contentMap
+    });
+  }
+
+  res.status(404).send({
+    success: 'false',
+    message: 'printed graphicPiece requested does not exist',
+  });
+});
+
+//ArenaShimizu App requests
+//digital
 router.get('/scoreBoard/get/', function (req, res){
   let filename = path.join(__dirname, "scoreboard.json");
 
@@ -93,19 +181,6 @@ router.post('/scoreBoard/update/', function(req, res){
 //in case of post request, all "variable" are passed in req.body
 router.post('/gloin', user.signin);
 
-// route with parameters ex: localhost:8081/elastic/:id
-router.get('/elastic/:id', function(req, res){
-    var routePath = "Route path: "+req.originalUrl;
-    var fullUrl = "Request URL: "+ "http://"+req.hostname+":"+port+req.originalUrl;
-
-    // body content
-    var body = "<p>"+routePath+"</p>";
-    body+= "<p>"+fullUrl+"</p>";
-    body+= "<p>Params: "+JSON.stringify(req.params)+"</p>";
-
-    res.send(body);
-});
-
 //router contain functions that not allow the request to go beyound it (res.send)
 app.use('/', router);
 
@@ -124,11 +199,12 @@ app.use(function (err, req, res, next){
 
 //last middleware response: 404 page error
 app.use(function(req, res, next){
-    res.status(404).render('404', { url: req.originalUrl });
+  res.status(404).render('404', { url: req.originalUrl });
 });
 
 // START THE SERVER
 if(!module.parent) {
-  app.listen(port);
-  console.log("Server started at the port: "+port);
+  app.listen(PORT, ()=>{
+    console.log(`Server started at the port: ${PORT}`);
+  });
 }
