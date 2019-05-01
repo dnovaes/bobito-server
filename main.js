@@ -1,10 +1,10 @@
 // BASE SETUP
-import express      from 'express'
-import db_Marketing from './config/db_pbMarketing';
-import path         from 'path';
-import bodyparser   from 'body-parser';
-import fs           from 'fs';
-import user         from './controller/user';
+const express       = require('express')
+const db_Marketing  = require('./config/db_pbMarketing');
+const path          = require('path');
+const bodyparser    = require('body-parser');
+const fs            = require('fs');
+const user          = require('./controller/user');
 
 //Set up the express app
 const app         = express()

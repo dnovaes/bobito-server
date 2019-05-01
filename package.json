@@ -4,7 +4,8 @@
   "description": "dummy server for experimental purposes",
   "main": "main.js",
   "scripts": {
-    "start": "node_modules/.bin/nodemon main.js --exec babel-node --",
+    "start": "node main.js",
+    "startBabelmode": "node_modules/.bin/nodemon main.js --exec babel-node --",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "dnovaes",
