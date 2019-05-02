@@ -39,7 +39,7 @@ router.get('/', function (req, res){
 });
 
 //Pb MarketingRequests
-//get All data
+//GET ALL data
 router.get('/graphicpieces/', (req, res) => {
   res.status(200).send({
     success: 'true',
@@ -47,7 +47,7 @@ router.get('/graphicpieces/', (req, res) => {
     content: db_Marketing
   });
 });
-// create a graphicpiece
+//CREATE a graphicpiece
 router.post('/graphicpieces/', (req, res) =>{
   if(!req.body.title){
     return res.status(404).send({
@@ -74,8 +74,37 @@ router.post('/graphicpieces/', (req, res) =>{
   })
 
 });
-//get a single graphicpiece by type
-//printed
+//GET a single graphicPiece by id
+router.get('/graphicpieces/:id', (req, res, next) => {
+  const id = parseInt(req.params.id, 10);
+  let elContentFound;
+
+  if(!isNaN(parseFloat(id))){
+    db_Marketing.map((elContent, index) => {
+      if (elContent.id === id) {
+          elContentFound = elContent
+      }
+    });
+
+    if(elContentFound){
+       return res.status(200).send({
+         success: 'true',
+         message: `graphicPiece id: ${id} selected successfuly`,
+         elContentFound
+       });
+    }else{
+      return res.status(404).send({
+        success: 'false',
+        message: 'graphicPiece by Id  not found',
+      });
+    }
+  }else{
+    next();
+  }
+});
+
+//GET a single graphicpiece by type
+//digital
 router.get('/graphicpieces/digital/', (req, res) => {
 
   let contentMap = []
@@ -91,14 +120,14 @@ router.get('/graphicpieces/digital/', (req, res) => {
       message: 'digital graphicpiece retrieved successfully',
       contentMap
     });
+  }else{
+    return res.status(404).send({
+      success: 'false',
+      message: 'digital graphicPiece requested does not exist',
+    });
   }
-
-  res.status(404).send({
-    success: 'false',
-    message: 'digital graphicPiece requested does not exist',
-  });
 });
-
+//printed
 router.get('/graphicpieces/printed/', (req, res) => {
   
   let contentMap = []
@@ -114,12 +143,85 @@ router.get('/graphicpieces/printed/', (req, res) => {
       message: 'printed graphicpiece retrieved successfully',
       contentMap
     });
+  }else{
+    return res.status(404).send({
+      success: 'false',
+      message: 'printed graphicPiece requested does not exist',
+    });
   }
 
-  res.status(404).send({
-    success: 'false',
-    message: 'printed graphicPiece requested does not exist',
+});
+//UPDATE
+app.put('/graphicpieces/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  let elContentFound;
+  let elContentFoundIndex;
+  db_Marketing.map((elContent, index) => {
+    if (elContent.id === id) {
+      elContentFound = elContent;
+      elContentFoundIndex = index;
+    }
   });
+
+  if (!elContentFound) {
+    return res.status(404).send({
+      success: 'false',
+      message: 'graphicPiece requested not found',
+    });
+  }
+
+  if (!req.body.title) {
+    return res.status(400).send({
+      success: 'false',
+      message: 'title is required',
+    });
+  } else if (!req.body.type) {
+    return res.status(400).send({
+      success: 'false',
+      message: 'type is required',
+    });
+  }
+
+  const updatedContent = {
+    id: elContentFound.id,
+    title: req.body.title || elContentFound.title,
+    type: req.body.type || elContentFound.type,
+  };
+
+  db_Marketing.splice(elContentFoundIndex, 1, updatedContent);
+
+  return res.status(201).send({
+    success: 'true',
+    message: `graphicPiece id: ${id} updated successfully`,
+    updatedContent,
+  });
+});
+
+//DELETE
+router.delete('/graphicpieces/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  let elContentFound
+  let elIndex
+
+  db_Marketing.map((elContent, index) => {
+    if (elContent.id === id) {
+      elContentFound = elContent
+      elIndex = index
+    }
+  });
+
+  if(elContentFound){
+    db_Marketing.splice(elIndex, 1);
+    return res.status(200).send({
+     success: 'true',
+     message: `graphicPiece id: ${id} deleted successfuly`,
+    });
+  }else{
+    return res.status(404).send({
+      success: 'false',
+      message: 'graphicPiece not found',
+    });
+  }
 });
 
 //ArenaShimizu App requests
