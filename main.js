@@ -77,20 +77,20 @@ router.post('/graphicpieces/', (req, res) =>{
 //GET a single graphicPiece by id
 router.get('/graphicpieces/:id', (req, res, next) => {
   const id = parseInt(req.params.id, 10);
-  let elContentFound;
+  let content; //content of the element found
 
   if(!isNaN(parseFloat(id))){
     db_Marketing.map((elContent, index) => {
       if (elContent.id === id) {
-          elContentFound = elContent
+          content = elContent
       }
     });
 
-    if(elContentFound){
+    if(content){
        return res.status(200).send({
          success: 'true',
          message: `graphicPiece id: ${id} selected successfuly`,
-         elContentFound
+         content 
        });
     }else{
       return res.status(404).send({
@@ -107,18 +107,18 @@ router.get('/graphicpieces/:id', (req, res, next) => {
 //digital
 router.get('/graphicpieces/digital/', (req, res) => {
 
-  let contentMap = []
-  db_Marketing.map((content) => {
-    if(parseInt(content.type) === 1){
-      contentMap.push(content)
+  let content = []
+  db_Marketing.map((elContent) => {
+    if(parseInt(elContent.type) === 1){
+      content.push(elContent)
     }
   });
 
-  if(contentMap.length){
+  if(content.length){
     return res.status(200).send({
       success: 'true',
       message: 'digital graphicpiece retrieved successfully',
-      contentMap
+      content
     });
   }else{
     return res.status(404).send({
@@ -130,18 +130,18 @@ router.get('/graphicpieces/digital/', (req, res) => {
 //printed
 router.get('/graphicpieces/printed/', (req, res) => {
   
-  let contentMap = []
-  db_Marketing.map((content) => {
-    if(parseInt(content.type) === 2){
-      contentMap.push(content)
+  let content = []
+  db_Marketing.map((elContent) => {
+    if(parseInt(elContent.type) === 2){
+      content.push(elContent)
     }
   });
 
-  if(contentMap.length){
+  if(content.length){
     return res.status(200).send({
       success: 'true',
       message: 'printed graphicpiece retrieved successfully',
-      contentMap
+      content
     });
   }else{
     return res.status(404).send({
@@ -182,18 +182,18 @@ app.put('/graphicpieces/:id', (req, res) => {
     });
   }
 
-  const updatedContent = {
+  const content = {
     id: elContentFound.id,
     title: req.body.title || elContentFound.title,
     type: req.body.type || elContentFound.type,
   };
 
-  db_Marketing.splice(elContentFoundIndex, 1, updatedContent);
+  db_Marketing.splice(elContentFoundIndex, 1, content);
 
   return res.status(201).send({
     success: 'true',
     message: `graphicPiece id: ${id} updated successfully`,
-    updatedContent,
+    content,
   });
 });
 
